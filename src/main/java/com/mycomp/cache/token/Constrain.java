@@ -3,16 +3,16 @@ package com.mycomp.cache.token;
 import java.util.Set;
 
 public class Constrain implements Token{
-    private String attribute_name;
+    private String constrain_name;
     private Set<Constrain> childConstains;
-    private Set<Operands> operands;
+    private Set<Attribute> attributes;
 
-    public String getAttribute_name() {
-        return attribute_name;
+    public String getConstrain_name() {
+        return constrain_name;
     }
 
-    public void setAttribute_name(String attribute_name) {
-        this.attribute_name = attribute_name;
+    public void setConstrain_name(String constrain_name) {
+        this.constrain_name = constrain_name;
     }
 
     public Set<Constrain> getChildConstains() {
@@ -23,11 +23,11 @@ public class Constrain implements Token{
         this.childConstains = childConstains;
     }
 
-    public Set<Operands> getOperands() {
-        return operands;
+    public Set<Attribute> getAttributes() {
+        return attributes;
     }
 
-    public void setOperands(Set<Operands> operands) {
-        this.operands = operands;
+    public void setAttributes(Set<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

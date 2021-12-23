@@ -9,6 +9,7 @@ public class Query {
     private GroupByClause groupByClause;
     private OrderByClause orderByClause;
     private RecLimit recLimit;
+    private MethodType methodType;
 
     public SelectClause getSelectClause() {
         return selectClause;

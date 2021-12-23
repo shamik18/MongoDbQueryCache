@@ -36,7 +36,33 @@ public class WhereClause {
             return  attribute.isEquvalent(other.attribute);
         }
         if(other.attrbType!=true && this.attrbType){
-            //some logic
+           if(other.constrain.getConstrain_name().equals("and")){
+               for(Attribute attribute: other.constrain.getAttributes()){
+                   if(attribute.isEquvalent(other.getAttribute())){
+                       return true;
+                   }
+               }
+           }
+        }
+        if(other.attrbType && !this.attrbType){
+            if(this.constrain.getConstrain_name().equals("or")){
+                for(Attribute attribute : this.constrain.getAttributes()){
+                    if(attribute.isEquvalent(other.attribute)){
+                        return true;
+                    }
+                }
+            }
+
+        }
+        if(!other.attrbType && !this.attrbType){
+            if(other.constrain.getConstrain_name().equals("or")){
+                if(this.constrain.getConstrain_name().equals("or")){
+                    if(!this.attribute.isEquvalent(other.attribute)){
+                        return false;
+                    }
+                    return true;
+                }
+            }
         }
         return false;
     }

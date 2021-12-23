@@ -1,24 +1,26 @@
 package com.mycomp.cache.token;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class Attribute {
     private String attr_name;
-    private String operation;
-    private String type;
-    private Object value;
+    private Set<Operands> operandsSet;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Attribute attribute = (Attribute) o;
-        return Objects.equals(attr_name, attribute.attr_name) && Objects.equals(operation, attribute.operation) && Objects.equals(type, attribute.type) && Objects.equals(value, attribute.value);
+    public String getAttr_name() {
+        return attr_name;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(attr_name, operation, type, value);
+    public void setAttr_name(String attr_name) {
+        this.attr_name = attr_name;
+    }
+
+    public Set<Operands> getOperandsSet() {
+        return operandsSet;
+    }
+
+    public void setOperandsSet(Set<Operands> operandsSet) {
+        this.operandsSet = operandsSet;
     }
 
     public boolean isEquvalent(Attribute attribute) {

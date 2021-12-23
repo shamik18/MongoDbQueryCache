@@ -2,10 +2,7 @@ package com.mycomp.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,4 +48,14 @@ public class JsonUtil {
            throw new IllegalArgumentException("The given Json string value: "+stringJson+" cannot be transformed to a Pojo: "+e.getMessage());
        }
    }
+
+    public static JsonNode getJsonNode(String stringJson){
+        try {
+            return OBJECT_MAPPER.readTree(getJsonParser(stringJson));
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.fatal("Exception Coverting Pojo",e);
+            throw new IllegalArgumentException("The given Json string value: "+stringJson+" cannot be transformed to a Pojo: "+e.getMessage());
+        }
+    }
 }
