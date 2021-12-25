@@ -1,6 +1,6 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.token.clause;
 
-public class FromClause {
+public class FromClause extends BasicClause{
     String from;
 
     public void setFrom(String from) {

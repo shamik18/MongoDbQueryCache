@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mycomp.cache.token.clause.FromClause;
+import com.mycomp.cache.token.clause.GroupByClause;
+import com.mycomp.cache.token.clause.SelectClause;
+import com.mycomp.cache.token.clause.WhereClause;
 import com.mycomp.util.JsonUtil;
 import com.mycomp.util.StringExtractor;
 import org.apache.commons.lang3.StringUtils;
@@ -13,24 +17,25 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.*;
 
-import static com.mycomp.cache.token.KeywordLookup.ComjuctureSet;
-import static com.mycomp.cache.token.KeywordLookup.OperatorSet;
+import static com.mycomp.cache.token.KeywordLookup.*;
 
 public class QueryBuilder {
     public Query populateQuery(String jsonQuery){
         Query query = new Query();
-        Map<ClauseType,Object> map = getClause(jsonQuery);
+
+        Map<ClauseType,Object> map = getClause(jsonQuery, query);
         query.setSelectClause(populateSelectClause(map.get(ClauseType.SELECT)));
         query.setFromClause(populateFromClause());
+        query.setMongoQuery(map.get(ClauseType.WHERE).toString());
         query.setWhereClause(populateWhereClause(map.get(ClauseType.WHERE)));
         query.setGroupByClause(populateGrpByClause(map.get(ClauseType.GROUPBY)));
-
+        System.out.println(query);
         return query;
-
     }
 
     private GroupByClause populateGrpByClause(Object jsonAggrFunct) {
         GroupByClause groupByClause = new GroupByClause();
+        System.out.println(jsonAggrFunct);
         return groupByClause;
     }
 
@@ -38,6 +43,7 @@ public class QueryBuilder {
         FromClause fromClause = new FromClause();
         String from = "from HomeProperty hp";
         fromClause.setFrom(from);
+        System.out.println(fromClause);
         return fromClause;
     }
 
@@ -148,15 +154,10 @@ public class QueryBuilder {
                             Constrain constrain = (Constrain) elem;
                             if(previousValue instanceof  Set){
                                 Set set = (Set) previousValue;
-                                Object obj = set.stream().findFirst().get();
-                                if(obj instanceof  Attribute){
-                                    constrain.setAttributes(set);
-                                }else if (obj instanceof Constrain){
-                                    constrain.setChildConstains(set);
-                                }
+                                constrain.setChild(set);
                             }else if(previousValue instanceof Constrain){
-                                Set<Constrain> constrainSet = new HashSet<>();
-                                constrainSet.add((Constrain)previousValue);
+                                Set<Token> tokens = new HashSet<>();
+                                tokens.add((Constrain)previousValue);
                             }
                             previousValue = constrain;
                         }
@@ -164,17 +165,18 @@ public class QueryBuilder {
                 }else if(JsonToken.START_ARRAY.equals(jsonToken)){
                     stack.push(jsonToken);
                 }else if(JsonToken.END_ARRAY.equals(jsonToken)){
-                    Set<Attribute> attributeSet = new HashSet<>();
+                    Set<Token> tokens = new HashSet<>();
                     while (true){
                         Object elem = stack.pop();
                         if(elem instanceof  JsonToken ){
                             JsonToken tokenElem = (JsonToken) elem;
                             if(tokenElem.equals(JsonToken.START_ARRAY)){
-                                stack.push(attributeSet);
+                                stack.push(tokens);
                                 break;
                             }
-                        }else if (elem instanceof Attribute){
-                            attributeSet.add((Attribute) elem);
+                        }
+                        if(elem instanceof Token){
+                            tokens.add((Token) elem);
                         }
                     }
                 }
@@ -191,6 +193,7 @@ public class QueryBuilder {
                 whereClause.setAttribute((Attribute) ob);
             }
         }
+        System.out.println(whereClause);
         return whereClause;
     }
 
@@ -203,19 +206,21 @@ public class QueryBuilder {
                 for (Iterator<Map.Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ){
                     Map.Entry<String, JsonNode> entry = it.next();
                     if(entry.getValue().asInt() == 1){
-                        fields.add(entry.getKey());
+                        fields.add(FIELD_MAPPER.get(entry.getKey()));
                     }
                 }
             }
         }
         selectClause.setFields(fields);
+        System.out.println(selectClause);
         return selectClause;
     }
 
-    private Map<ClauseType,Object> getClause(String jsonQuery) {
+    private Map<ClauseType,Object> getClause(String jsonQuery, Query query) {
         String cleanString = StringUtils.deleteWhitespace(jsonQuery);
         Map<ClauseType,Object> clauseMap = new HashMap<>();
         if(StringUtils.contains(cleanString,"aggregate")){
+            query.setMethodType(MethodType.METHOD_AGGREGATE);
             String methodParam = StringExtractor.getMethodParameter(cleanString,"aggregate");
             JsonNode node = JsonUtil.getJsonNode(methodParam);
             if(node.isArray()){
@@ -223,11 +228,12 @@ public class QueryBuilder {
                 for(int i = 0; i < arrayNode.size(); i++) {
                     JsonNode arrayElement = arrayNode.get(i);
                     System.out.println(arrayElement);
-                    System.out.println(arrayElement);
                     for (Iterator<Map.Entry<String, JsonNode>> it = arrayElement.fields(); it.hasNext(); ) {
                         Map.Entry<String, JsonNode> entry = it.next();
                         if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.WHERE)){
                             clauseMap.put(ClauseType.WHERE,entry.getValue());
+                            System.out.println(entry.getValue().toString());
+                            query.setMongoQuery(entry.getValue().toString());
                         }else if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.SELECT)){
                             clauseMap.put(ClauseType.SELECT,entry.getValue());
                         }else if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.GROUPBY)){
@@ -239,6 +245,7 @@ public class QueryBuilder {
                 }
             }
         }else if(StringUtils.contains(cleanString,"find")){
+            query.setMethodType(MethodType.METHOD_FIND);
             String[] strings = StringUtils.split(cleanString,".");
 
             for(String token : strings){
@@ -251,6 +258,7 @@ public class QueryBuilder {
                 }
             }
         }
+        System.out.println(clauseMap);
         return clauseMap;
     }
     private static void extractJsonFromLimit(String token, Map<ClauseType, Object> clauseMap) {
@@ -287,5 +295,51 @@ public class QueryBuilder {
                 clauseMap.put(clauseTypes[i],arrayElement);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        Query query = null;
+        String qry1 = "collection.aggregate([\n" +
+                "                        {\"$match\" : {\n" +
+                "                                        \"$or\" : [\n" +
+                "                                                {\"name\": {\"$regex\":\"Beach\"} },\n" +
+                "                                                {\"property_type\":\"House\"}\n" +
+                "                                        ]\n" +
+                "                        }},\n" +
+                "                        { \"$project\": { \"name\": 1, \"_id\": 0} }\n" +
+                "        ])\n" +
+                "\t\t";
+        query = queryBuilder.populateQuery(qry1);
+//        String qry2 = "collection.aggregate([\n" +
+//                "                {\n" +
+//                "                        \"$match\" : {\n" +
+//                "                                        \"$or\" : [\n" +
+//                "                                                {\"property_type\":\"House\"}\n" +
+//                "                                        ]\n" +
+//                "                        },\n" +
+//                "\n" +
+//                "                },\n" +
+//                "                { \"$project\": { \"name\": 1, \"_id\": 0} }\n" +
+//                "        ])";
+//        query = queryBuilder.populateQuery(qry2);
+//        String qry3 = "collection.aggregate([ \n" +
+//                "                {\n" +
+//                "                        \"$match\" : {\n" +
+//                "                                        \"name\": {\"$regex\":\"Beach\"}, \n" +
+//                "                                        \"property_type\": {\"$exists\":True, \"$eq\": \"House\"}, \n" +
+//                "                                        \"accommodates\": {\"$gt\": 6 }\n" +
+//                "                                        \n" +
+//                "                        }\n" +
+//                "\n" +
+//                "                }, \n" +
+//                "                {        \n" +
+//                "                        \"$count\":  \"number_of_records\"  \n" +
+//                "                }\n" +
+//                "                 \n" +
+//                "        ])";
+//        query = queryBuilder.populateQuery(qry3);
+//        String qry4 = "collection.find( { \"$or\" : [ {\"name\":{\"$regex\":\"Beach\"} } , { \"property_type\":\"House\"} ] }, {\"name\":1,\"_id\":0} ).sort(\"name\",-1).limit(10)";
+//        query = queryBuilder.populateQuery(qry4);
     }
 }

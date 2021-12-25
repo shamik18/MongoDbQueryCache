@@ -24,7 +24,7 @@ public class JPAHandler {
         }
     }
 
-    public List<HomeProperty> getDataFromCache(String hsqlQuery, List<Object> parameter){
+    public List<HomeProperty> getDataFromCache(String hsqlQuery){
         Transaction transaction = null;
         List<HomeProperty> list = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
@@ -32,11 +32,12 @@ public class JPAHandler {
             System.out.println("Execute Hsql:"+hsqlQuery);
             Query query = session.createQuery(hsqlQuery);
 
-            query.setParameter("name",parameter.get(0));
-            query.setParameter("type",parameter.get(1));
+//            query.setParameter("name",parameter.get(0));
+//            query.setParameter("type",parameter.get(1));
 
 
             list = query.getResultList();
+            System.out.println(list.size());
             transaction.commit();
         }catch (Exception exception) {
             exception.printStackTrace();

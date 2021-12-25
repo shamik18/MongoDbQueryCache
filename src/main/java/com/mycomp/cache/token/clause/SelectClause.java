@@ -1,9 +1,12 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.token.clause;
+
+import com.mycomp.cache.token.clause.BasicClause;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectClause {
+public class SelectClause extends BasicClause {
     private List<String> fields = new ArrayList<>();
 
     public List<String> getFields() {
@@ -19,7 +22,8 @@ public class SelectClause {
         String select = "select ";
         int len = fields.size();
         if(fields.size() == 0){
-            select+="*";
+            select+= StringUtils.EMPTY;
+            setApply(false);
         }else {
            for(int i =0 ; i<len; i++){
                select+=fields.get(i);

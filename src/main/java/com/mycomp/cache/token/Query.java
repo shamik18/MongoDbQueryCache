@@ -1,5 +1,9 @@
 package com.mycomp.cache.token;
 
+import com.mycomp.cache.token.clause.*;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Date;
 import java.util.Objects;
 
 public class Query {
@@ -10,6 +14,32 @@ public class Query {
     private OrderByClause orderByClause;
     private RecLimit recLimit;
     private MethodType methodType;
+    private String mongoQuery;
+    private Date updateTS = new Date();
+
+    public Date getUpdateTS() {
+        return updateTS;
+    }
+
+    public void setUpdateTS(Date updateTS) {
+        this.updateTS = updateTS;
+    }
+
+    public MethodType getMethodType() {
+        return methodType;
+    }
+
+    public void setMethodType(MethodType methodType) {
+        this.methodType = methodType;
+    }
+
+    public String getMongoQuery() {
+        return mongoQuery;
+    }
+
+    public void setMongoQuery(String mongoQuery) {
+        this.mongoQuery = mongoQuery;
+    }
 
     public SelectClause getSelectClause() {
         return selectClause;
@@ -64,11 +94,37 @@ public class Query {
         if (this == o) return true;
         if (!(o instanceof Query)) return false;
         Query query = (Query) o;
-        return Objects.equals(getWhereClause(), query.getWhereClause());
+        return this.isEquivalent(query);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getWhereClause());
+    }
+
+    @Override
+    public String toString() {
+        String query = "";
+        if(selectClause != null &&  selectClause.isApply()){
+            query+=selectClause.toString();
+        }
+        if(fromClause != null && fromClause.isApply()){
+            query+=" "+fromClause;
+        }
+        if(whereClause != null && whereClause.isApply()){
+            query+=" "+whereClause;
+        }
+        if(groupByClause != null && groupByClause.isApply()){
+            query+=" "+groupByClause;
+        }
+        if(orderByClause != null && orderByClause.isApply()){
+            query+=" "+orderByClause;
+        }
+        System.out.println(query);
+        return query;
+    }
+
+    public boolean isEquivalent(Query other){
+     return this.whereClause.isEquivalent(other.whereClause);
     }
 }

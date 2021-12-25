@@ -1,9 +1,13 @@
 package com.mycomp.cache.token;
 
-import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Set;
 
-public class Attribute {
+import static com.mycomp.cache.token.KeywordLookup.FIELD_MAPPER;
+import static com.mycomp.cache.token.KeywordLookup.KEY_OP;
+
+public class Attribute implements Token{
     private String attr_name;
     private Set<Operands> operandsSet;
 
@@ -23,10 +27,56 @@ public class Attribute {
         this.operandsSet = operandsSet;
     }
 
-    public boolean isEquvalent(Attribute attribute) {
-        if(attribute.attr_name.equals(this.attr_name)){
-
+    @Override
+    public boolean isEquivalent(Token token) {
+        Attribute attribute = null;
+        Constrain constrain = null;
+        if((token instanceof  Attribute)){
+            attribute = (Attribute) token;
         }
+        if(token instanceof Constrain){
+            constrain = (Constrain) token;
+        }
+        if(attribute==null && token==null)
+            return false;
+        if(attribute != null){
+            if(attribute.attr_name.equals(this.attr_name)){
+                if(this.operandsSet != null && attribute.operandsSet != null){
+                    for(Operands operands : this.operandsSet){
+                        boolean isMatched = attribute.operandsSet.stream().anyMatch(operands1 -> operands1.isEquivalent(operands));
+                        if(!isMatched)
+                            return false;
+                    }
+                    return true;
+                }
+            }
+        }
+
+        if(constrain != null){
+            OperatorEnum otherOperatorEnum = KEY_OP.get(constrain.getConstrain_name());
+            if(otherOperatorEnum.equals(OperatorEnum.AND)){
+              return constrain.getChild().stream().anyMatch(token1 -> token1.isEquivalent(this));
+            }else if(otherOperatorEnum.equals(OperatorEnum.OR)){
+               return false;
+            }else if(otherOperatorEnum.equals(OperatorEnum.IN)){
+               return false;
+            }
+        }
+
         return false;
+    }
+    @Override
+    public String toString() {
+        String hsqlQuery = StringUtils.EMPTY;
+        hsqlQuery+=FIELD_MAPPER.get(attr_name);
+        if(operandsSet != null){
+            for(Operands operands : operandsSet){
+                if(operands != null){
+                    hsqlQuery+=" "+operands.toString();
+                }
+            }
+        }
+
+        return hsqlQuery;
     }
 }
