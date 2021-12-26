@@ -1,12 +1,13 @@
 package com.mycomp.cache.token;
 
+import com.mycomp.cache.enums.OperatorEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.mycomp.cache.token.KeywordLookup.KEY_OP;
-import static com.mycomp.cache.token.KeywordLookup.OP_HKEY;
+import static com.mycomp.cache.constant.KeywordLookup.KEY_OP;
+import static com.mycomp.cache.constant.KeywordLookup.OP_HKEY;
 
 public class Constrain implements Token{
     private String constrain_name;

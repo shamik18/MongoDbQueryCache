@@ -19,6 +19,7 @@ com/mycomp/models/LastReview.class
 com/mycomp/models/Location.class
 com/mycomp/models/ReviewScores.class
 com/mycomp/cache/token/clause/GroupByClause.class
+com/mycomp/cache/QueryCache$PriorityQueueSet.class
 com/mycomp/cache/token/MongoQueryParser.class
 com/mycomp/cache/token/LongOperand.class
 com/mycomp/models/Images.class

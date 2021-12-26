@@ -1,4 +1,7 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.constant;
+
+import com.mycomp.cache.enums.ClauseType;
+import com.mycomp.cache.enums.OperatorEnum;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,12 +9,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class KeywordLookup {
-    public static final Map<String,ClauseType> KEYWORD_CLAUSE = new HashMap<>();
+    public static final Map<String, ClauseType> KEYWORD_CLAUSE = new HashMap<>();
     public static final Set<String> ComjuctureSet = new HashSet<>();
     public static final Set<String> OperatorSet = new HashSet<>();
     public static final Map<String,String> FIELD_MAPPER = new HashMap<>();
-    public static final Map<String,OperatorEnum> KEY_OP= new HashMap<>();
+    public static final Map<String, OperatorEnum> KEY_OP= new HashMap<>();
     public static final Map<OperatorEnum,String> OP_HKEY = new HashMap<>();
+
 
 
     static {
@@ -22,12 +26,15 @@ public class KeywordLookup {
         OperatorSet.add("$regex");
         OperatorSet.add("$gt");
         OperatorSet.add("$lt");
+        OperatorSet.add("$exists");
+        OperatorSet.add("$eq");
+
     }
 
     static {
         KEYWORD_CLAUSE.put("$match",ClauseType.WHERE);
         KEYWORD_CLAUSE.put("$group",ClauseType.GROUPBY);
-        KEYWORD_CLAUSE.put("$count",ClauseType.GROUPBY);
+        KEYWORD_CLAUSE.put("$count",ClauseType.ARRG_FUNC);
         KEYWORD_CLAUSE.put("$sort",ClauseType.SORT);
         KEYWORD_CLAUSE.put("$project",ClauseType.SELECT);
     }
@@ -58,17 +65,22 @@ public class KeywordLookup {
     }
 
     static {
-        KEY_OP.put("eq",OperatorEnum.EQ);
+        KEY_OP.put("$eq",OperatorEnum.EQ);
         KEY_OP.put("$regex",OperatorEnum.LIKE);
         KEY_OP.put("$gt",OperatorEnum.GT);
         KEY_OP.put("$lt",OperatorEnum.LT);
         KEY_OP.put("$or",OperatorEnum.OR);
+        KEY_OP.put("$and",OperatorEnum.AND);
+        KEY_OP.put("$exists",OperatorEnum.EXIST);
 
         OP_HKEY.put(OperatorEnum.EQ,"=");
         OP_HKEY.put(OperatorEnum.LIKE,"like");
         OP_HKEY.put(OperatorEnum.GT,">");
         OP_HKEY.put(OperatorEnum.LT,"<");
         OP_HKEY.put(OperatorEnum.OR,"or");
+        OP_HKEY.put(OperatorEnum.AND,"and");
+        OP_HKEY.put(OperatorEnum.EXIST,"is not null");
+
 
     }
 }

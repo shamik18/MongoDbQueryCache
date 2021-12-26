@@ -1,8 +1,10 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.token.primitive;
 
-import java.util.Objects;
+import com.mycomp.cache.enums.OperatorEnum;
+import com.mycomp.cache.token.Operands;
+import com.mycomp.cache.token.Token;
 
-public class LongOperand extends Operands{
+public class LongOperand extends Operands {
     private Long value;
 
     public Long getValue() {

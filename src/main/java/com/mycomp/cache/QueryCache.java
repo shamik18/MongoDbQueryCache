@@ -1,6 +1,7 @@
 package com.mycomp.cache;
 
-import com.mycomp.cache.token.Query;
+import com.mycomp.cache.clause.Query;
+import com.mycomp.cache.clause.RecLimit;
 import com.mycomp.h2.JPAHandler;
 import com.mycomp.models.HomeProperty;
 
@@ -46,12 +47,14 @@ public class QueryCache {
        return lruCache.isExist(query);
     }
 
-    public List<HomeProperty> getQueryFromCache(Query query){
+    public CacheResult getQueryFromCache(Query query){
         String hsqlQuery = query.toString();
-        List<HomeProperty>  homeProperties = jpaHandler.getDataFromCache(hsqlQuery);
+        RecLimit recLimit = query.getRecLimit();
+        boolean isAggrigate = query.getSelectClause().isAggregate();
+        CacheResult result = jpaHandler.getDataFromCache(hsqlQuery,recLimit,isAggrigate);
         Query q = lruCache.get(query);
         q.setUpdateTS(new Date());
-        return homeProperties;
+        return result;
     }
 
     public void updateCache(Query query, List<HomeProperty> list){

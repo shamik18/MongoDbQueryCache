@@ -1,7 +1,6 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.clause;
 
-import com.mycomp.cache.token.clause.*;
-import org.apache.commons.lang3.StringUtils;
+import com.mycomp.cache.enums.MethodType;
 
 import java.util.Date;
 import java.util.Objects;
@@ -105,22 +104,22 @@ public class Query {
     @Override
     public String toString() {
         String query = "";
-        if(selectClause != null &&  selectClause.isApply()){
+        if(selectClause != null ){
             query+=selectClause.toString();
         }
-        if(fromClause != null && fromClause.isApply()){
+        if(fromClause != null ){
             query+=" "+fromClause;
         }
-        if(whereClause != null && whereClause.isApply()){
+        if(whereClause != null ){
             query+=" "+whereClause;
         }
-        if(groupByClause != null && groupByClause.isApply()){
+        if(groupByClause != null ){
             query+=" "+groupByClause;
         }
-        if(orderByClause != null && orderByClause.isApply()){
+        if(orderByClause != null){
             query+=" "+orderByClause;
         }
-        System.out.println(query);
+//        System.out.println(query);
         return query;
     }
 

@@ -1,5 +1,8 @@
 package com.mycomp.cache.token;
 
+import com.mycomp.cache.constant.KeywordLookup;
+import com.mycomp.cache.enums.OperatorEnum;
+
 import java.util.Objects;
 
 public class Operands implements Token {

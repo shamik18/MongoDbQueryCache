@@ -1,11 +1,12 @@
 package com.mycomp.cache.token;
 
+import com.mycomp.cache.enums.OperatorEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
-import static com.mycomp.cache.token.KeywordLookup.FIELD_MAPPER;
-import static com.mycomp.cache.token.KeywordLookup.KEY_OP;
+import static com.mycomp.cache.constant.KeywordLookup.FIELD_MAPPER;
+import static com.mycomp.cache.constant.KeywordLookup.KEY_OP;
 
 public class Attribute implements Token{
     private String attr_name;

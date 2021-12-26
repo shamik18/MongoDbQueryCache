@@ -1,4 +1,4 @@
-package com.mycomp.cache.token.clause;
+package com.mycomp.cache.clause;
 
 public class FromClause extends BasicClause{
     String from;

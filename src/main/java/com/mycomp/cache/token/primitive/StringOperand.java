@@ -1,12 +1,15 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.token.primitive;
 
+import com.mycomp.cache.enums.OperatorEnum;
+import com.mycomp.cache.token.Operands;
+import com.mycomp.cache.token.Token;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
-import static com.mycomp.cache.token.KeywordLookup.OP_HKEY;
+import static com.mycomp.cache.constant.KeywordLookup.OP_HKEY;
 
-public class StringOperand extends Operands{
+public class StringOperand extends Operands {
 
     String value;
 

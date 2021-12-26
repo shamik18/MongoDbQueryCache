@@ -1,8 +1,7 @@
-package com.mycomp.cache.token.clause;
+package com.mycomp.cache.clause;
 
 import com.mycomp.cache.token.Attribute;
 import com.mycomp.cache.token.Constrain;
-import com.mycomp.cache.token.Token;
 import org.apache.commons.lang3.StringUtils;
 
 public class WhereClause extends BasicClause {

@@ -1,4 +1,4 @@
-package com.mycomp.cache.token;
+package com.mycomp.cache.enums;
 
 public enum MethodType {
     METHOD_FIND,

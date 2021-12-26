@@ -1,7 +1,7 @@
-package com.mycomp.cache.token.clause;
+package com.mycomp.cache.clause;
 
 public class BasicClause {
-    private boolean apply = true;
+    private boolean apply ;
 
     public boolean isApply() {
         return apply;

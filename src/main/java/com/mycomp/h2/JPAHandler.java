@@ -1,5 +1,7 @@
 package com.mycomp.h2;
 
+import com.mycomp.cache.CacheResult;
+import com.mycomp.cache.clause.RecLimit;
 import com.mycomp.models.HomeProperty;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -12,9 +14,9 @@ public class JPAHandler {
         Transaction transaction = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
             transaction = session.beginTransaction();
-            System.out.println("Saving "+homeProperty.getId());
+//            System.out.println("Saving "+homeProperty.getId());
             session.saveOrUpdate(homeProperty);
-            System.out.println("Saved successfully  "+homeProperty.getId());
+//            System.out.println("Saved successfully  "+homeProperty.getId());
             transaction.commit();
         }catch (Exception exception) {
             exception.printStackTrace();
@@ -24,20 +26,27 @@ public class JPAHandler {
         }
     }
 
-    public List<HomeProperty> getDataFromCache(String hsqlQuery){
+    public CacheResult getDataFromCache(String hsqlQuery, RecLimit recLimit, boolean isAggrigate){
+        CacheResult cacheResult = new CacheResult();
         Transaction transaction = null;
-        List<HomeProperty> list = null;
+//        List<HomeProperty> list = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
             transaction = session.beginTransaction();
             System.out.println("Execute Hsql:"+hsqlQuery);
             Query query = session.createQuery(hsqlQuery);
-
-//            query.setParameter("name",parameter.get(0));
-//            query.setParameter("type",parameter.get(1));
-
-
-            list = query.getResultList();
-            System.out.println(list.size());
+            if(isAggrigate){
+                Object object = query.getSingleResult();
+                cacheResult.setValue(object);
+                cacheResult.setSingleResult(isAggrigate);
+            }else{
+                if(recLimit.isLimitApply()){
+                    query.setFirstResult(recLimit.getLowLimit());
+                    query.setMaxResults(recLimit.getHighLimit());
+                }
+                List list = query.getResultList();
+                cacheResult.setHomeProperties(list);
+                System.out.println(list.size());
+            }
             transaction.commit();
         }catch (Exception exception) {
             exception.printStackTrace();
@@ -45,6 +54,6 @@ public class JPAHandler {
                 transaction.rollback();
             }
         }
-        return list;
+        return cacheResult;
     }
 }
