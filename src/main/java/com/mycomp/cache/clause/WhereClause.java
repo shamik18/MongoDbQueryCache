@@ -4,10 +4,14 @@ import com.mycomp.cache.token.Attribute;
 import com.mycomp.cache.token.Constrain;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class WhereClause extends BasicClause {
     private Constrain constrain;
     private Attribute attribute;
     private boolean attrbType = false;
+
 
     public Constrain getConstrain() {
         return constrain;

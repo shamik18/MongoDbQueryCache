@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mycomp.cache.clause.Query;
-import com.mycomp.cache.constant.Constants;
 import com.mycomp.cache.constant.KeywordLookup;
 import com.mycomp.cache.enums.ClauseType;
 import com.mycomp.cache.enums.MethodType;
@@ -13,9 +12,7 @@ import com.mycomp.util.JsonUtil;
 import com.mycomp.util.StringExtractor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static com.mycomp.cache.constant.Constants.*;
 
@@ -35,8 +32,7 @@ public class InputJsonParser {
                     for (Iterator<Map.Entry<String, JsonNode>> it = arrayElement.fields(); it.hasNext(); ) {
                         Map.Entry<String, JsonNode> entry = it.next();
                         if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.WHERE)){
-                            clauseMap.put(ClauseType.WHERE,entry.getValue());
-                            query.setMongoQuery(entry.getValue().toString());
+                            ((List<JsonNode>)clauseMap.computeIfAbsent(ClauseType.WHERE,clauseType -> new ArrayList<JsonNode>())).add(entry.getValue());
                         }else if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.SELECT)){
                             clauseMap.put(ClauseType.SELECT,entry.getValue());
                         }else if(KeywordLookup.KEYWORD_CLAUSE.get(entry.getKey()).equals(ClauseType.GROUPBY)){
@@ -55,7 +51,6 @@ public class InputJsonParser {
 
             for(String token : strings){
                 if(token.contains(FIND)){
-
                     extractJsonFromFind(token,clauseMap);
                 }else if(token.contains(SORT)){
                     extractJsonFromSort(token,clauseMap);
@@ -64,7 +59,6 @@ public class InputJsonParser {
                 }
             }
         }
-//        System.out.println(clauseMap);
         return clauseMap;
     }
     private static void extractJsonFromLimit(String token, Map<ClauseType, Object> clauseMap) {
@@ -74,7 +68,7 @@ public class InputJsonParser {
 
     private static void extractJsonFromSort(String token, Map<ClauseType, Object> clauseMap) {
         String methodParam = StringExtractor.getMethodParameter(token, SORT);
-        System.out.println(methodParam);
+//        System.out.println(methodParam);
         String[] tokens= StringUtils.split(methodParam,",");
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
@@ -98,7 +92,11 @@ public class InputJsonParser {
             for(int i = 0; i < arrayNode.size(); i++) {
                 JsonNode arrayElement = arrayNode.get(i);
 //                System.out.println(arrayElement);
-                clauseMap.put(clauseTypes[i],arrayElement);
+                if(clauseTypes[i].equals(ClauseType.WHERE)){
+                    ((List<JsonNode>)clauseMap.computeIfAbsent(ClauseType.WHERE,clauseType -> new ArrayList<JsonNode>())).add(arrayElement);
+                }else{
+                    clauseMap.put(clauseTypes[i],arrayElement);
+                }
             }
         }
     }

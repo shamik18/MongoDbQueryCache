@@ -38,11 +38,27 @@ public class QueryBuilder {
         query.setSelectClause(selectClauseBuilder.populateSelectClause(map.get(ClauseType.SELECT)));
         query.setSelectClause(selectClauseBuilder.populateSelAggrFunct(query,map.get(ClauseType.ARRG_FUNC)));
         query.setFromClause(populateFromClause());
-        query.setMongoQuery(map.get(ClauseType.WHERE).toString());
         query.setWhereClause(whereClauseBuilder.populateWhereClause(map.get(ClauseType.WHERE)));
         query.setGroupByClause(groupByClauseBuilder.populateGrpByClause(query,map.get(ClauseType.GROUPBY)));
         query.setOrderByClause(orderbyBuilder.populateOrderByClause(query,map.get(ClauseType.SORT)));
         query.setRecLimit(recLimitBuilder.populateRecLimit(query,map.get(ClauseType.LIMIT)));
+        List<JsonNode> jsonNodes = (List<JsonNode>) map.get(ClauseType.WHERE);
+
+
+        if(jsonNodes.size() == 1){
+            query.setMongoQuery(jsonNodes.get(0).toString());
+        }else{
+            ObjectMapper mapper = new ObjectMapper();
+            ArrayNode arrayNode = mapper.createArrayNode();
+            ObjectNode andNode = mapper.createObjectNode();
+            andNode.set("$and",arrayNode);
+            for(JsonNode jsonNode: jsonNodes){
+                arrayNode.add(jsonNode);
+            }
+            query.setMongoQuery(andNode.toString());
+        }
+
+
 //        System.out.println(query);
         return query;
     }

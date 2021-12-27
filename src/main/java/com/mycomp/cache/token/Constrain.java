@@ -2,6 +2,8 @@ package com.mycomp.cache.token;
 
 import com.mycomp.cache.enums.OperatorEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -10,6 +12,8 @@ import static com.mycomp.cache.constant.KeywordLookup.KEY_OP;
 import static com.mycomp.cache.constant.KeywordLookup.OP_HKEY;
 
 public class Constrain implements Token{
+    private static final Logger logger = LogManager.getLogger(Constrain.class);
+
     private String constrain_name;
     private Set<Token> child;
 
@@ -98,15 +102,15 @@ public class Constrain implements Token{
     }
 
     private boolean orEqvCheckConstrain(Constrain constrain) {
-        OperatorEnum otherOperatorEnum = KEY_OP.get(this.constrain_name);
+        OperatorEnum otherOperatorEnum = KEY_OP.get(constrain.constrain_name);
         if(otherOperatorEnum.equals(OperatorEnum.AND)){
-            //every token of other should match any token on this.
+            //any token of other should match any token on this.
             for(Token token : constrain.child){
               if(this.child.stream().anyMatch(token1 -> token1.isEquivalent(token))) {
                   return true;
               }
             }
-            return true;
+            return false;
         }else if(otherOperatorEnum.equals(OperatorEnum.OR)){
             //every token of other should match any token on this and number of token should equal.
             boolean isMatch;
@@ -125,12 +129,14 @@ public class Constrain implements Token{
     }
 
     private boolean andEqvCheckConstrain(Constrain constrain) {
-        OperatorEnum otherOperatorEnum = KEY_OP.get(this.constrain_name);
+        OperatorEnum otherOperatorEnum = KEY_OP.get(constrain.constrain_name);
         if(otherOperatorEnum.equals(OperatorEnum.AND)){
             //every token of other should match any token on this.
+            if(this.child.size() > constrain.child.size())
+                return false;
             boolean isMatch = false;
-            for(Token token : constrain.child){
-                isMatch = this.child.stream().anyMatch(token1 -> token1.isEquivalent(token));
+            for(Token token : this.child){
+                isMatch = constrain.child.stream().anyMatch(token1 -> token1.isEquivalent(token));
                 if(!isMatch)
                     return isMatch;
             }

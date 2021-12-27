@@ -2,6 +2,8 @@ package com.mycomp.cache.token;
 
 import com.mycomp.cache.enums.OperatorEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 
@@ -9,6 +11,8 @@ import static com.mycomp.cache.constant.KeywordLookup.FIELD_MAPPER;
 import static com.mycomp.cache.constant.KeywordLookup.KEY_OP;
 
 public class Attribute implements Token{
+    private static final Logger logger = LogManager.getLogger(Attribute.class);
+
     private String attr_name;
     private Set<Operands> operandsSet;
 

@@ -11,8 +11,9 @@ public class MongoConnection {
     private MongoClient mongoClient;
     private static final String _URL ="mongodb+srv://admin:admin@cluster0.lpfj2.mongodb.net/sample_airbnb?retryWrites=true&w=majority";
 
-    public MongoClient getMongoClient() {
-        ConnectionString connectionString = new ConnectionString(_URL);
+    public MongoClient getMongoClient(String url) {
+//        ConnectionString connectionString = new ConnectionString(_URL);
+        ConnectionString connectionString = new ConnectionString(url);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString).build();
         mongoClient = MongoClients.create(mongoClientSettings);
         return mongoClient;

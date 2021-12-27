@@ -3,8 +3,12 @@ package com.mycomp.cache.token.primitive;
 import com.mycomp.cache.enums.OperatorEnum;
 import com.mycomp.cache.token.Operands;
 import com.mycomp.cache.token.Token;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LongOperand extends Operands {
+    private static final Logger logger = LogManager.getLogger(LongOperand.class);
+
     private Long value;
 
     public Long getValue() {

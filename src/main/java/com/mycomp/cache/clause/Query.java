@@ -2,8 +2,10 @@ package com.mycomp.cache.clause;
 
 import com.mycomp.cache.enums.MethodType;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Query {
     private SelectClause selectClause;
@@ -14,13 +16,18 @@ public class Query {
     private RecLimit recLimit;
     private MethodType methodType;
     private String mongoQuery;
-    private Date updateTS = new Date();
+    private LocalDateTime updateTS = LocalDateTime.now();
+    private String queryID = UUID.randomUUID().toString();
 
-    public Date getUpdateTS() {
+    public String getQueryID(){
+        return queryID;
+    }
+
+    public LocalDateTime getUpdateTS() {
         return updateTS;
     }
 
-    public void setUpdateTS(Date updateTS) {
+    public void setUpdateTS(LocalDateTime updateTS) {
         this.updateTS = updateTS;
     }
 

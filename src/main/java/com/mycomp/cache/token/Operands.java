@@ -1,11 +1,16 @@
 package com.mycomp.cache.token;
 
+import com.mycomp.cache.CacheResult;
 import com.mycomp.cache.constant.KeywordLookup;
 import com.mycomp.cache.enums.OperatorEnum;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
 public class Operands implements Token {
+    private static final Logger logger = LogManager.getLogger(Operands.class);
+
     protected OperatorEnum operatorEnum = OperatorEnum.EQ;
     protected String operator = "=";
 
@@ -17,6 +22,11 @@ public class Operands implements Token {
         this.operator = operator;
         operatorEnum = KeywordLookup.KEY_OP.get(operator);
     }
+
+    public OperatorEnum operatorEnum() {
+        return operatorEnum;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -2,96 +2,67 @@ package com.mycomp.app;
 
 import com.mycomp.cache.CacheResult;
 import com.mycomp.cache.MongoClientWithCache;
+import com.mycomp.cache.token.primitive.LongOperand;
 import com.mycomp.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.util.List;
+
+import static java.lang.System.exit;
 
 public class AppCmd {
+    private static final Logger logger = LogManager.getLogger(AppCmd.class);
+
     public static void main(String[] args) {
-        CacheResult cacheResult = null;
-        MongoClientWithCache mongoClientWithCache = new MongoClientWithCache();
-        String qry1 = "collection.aggregate([\n" +
-                "                        {\"$match\" : {\n" +
-                "                                        \"$or\" : [\n" +
-                "                                                {\"name\": {\"$regex\":\"Beach\"} },\n" +
-                "                                                {\"property_type\":\"House\"}\n" +
-                "                                        ]\n" +
-                "                        }},\n" +
-                "                        { \"$project\": { \"name\": 1, \"_id\": 0} }\n" +
-                "        ])\n" +
-                "\t\t";
-        System.out.println(StringUtils.deleteWhitespace(qry1));
-        cacheResult = mongoClientWithCache.excuteQuery(qry1);
+        if(args.length < 4){
+            logger.info("Please execute the following command\n");
+            logger.info("java -jar mongodb-cache.jar -f /filepath -url <mongodb connection string>");
+            exit(0);
 
-        String qry2 = "collection.aggregate([\n" +
-                "                {\n" +
-                "                        \"$match\" : {\n" +
-                "                                        \"$or\" : [\n" +
-                "                                                {\"property_type\":\"House\"}\n" +
-                "                                        ]\n" +
-                "                        }\n" +
-                "\n" +
-                "                },\n" +
-                "                { \"$project\": { \"name\": 1, \"_id\": 0} }\n" +
-                "        ])";
-        System.out.println(StringUtils.deleteWhitespace(qry2));
-        cacheResult = mongoClientWithCache.excuteQuery(qry2);
-
-        String qry3 = "collection.aggregate([ \n" +
-                "                {\n" +
-                "                        \"$match\" : {\n" +
-                "                                        \"name\": {\"$regex\":\"Beach\"}, \n" +
-                "                                        \"property_type\": {\"$exists\":true, \"$eq\": \"House\"}, \n" +
-                "                                        \"accommodates\": {\"$gt\": 6 }\n" +
-                "                                        \n" +
-                "                        }\n" +
-                "\n" +
-                "                }, \n" +
-                "                {        \n" +
-                "                        \"$count\":  \"number_of_records\"  \n" +
-                "                }\n" +
-                "                 \n" +
-                "        ])";
-        System.out.println(StringUtils.deleteWhitespace(qry3));
-        cacheResult = mongoClientWithCache.excuteQuery(qry3);
-
-        String qry4 = "collection.find( { \"$or\" : [ {\"name\":{\"$regex\":\"Beach\"} } , { \"property_type\":\"House\"} ] }, {\"name\":1,\"_id\":0} ).sort(\"name\",-1).limit(10)";
-        System.out.println(StringUtils.deleteWhitespace(qry4));
-        cacheResult = mongoClientWithCache.excuteQuery(qry4);
-        if(cacheResult.isSingleResult()){
-            System.out.println(cacheResult.getValue());
-        }else{
-            cacheResult.getHomeProperties().forEach(item -> System.out.println(JsonUtil.toJsonString(item)));
         }
-//        String qry5 = "collection.find( { \"$text\" : { \"$search\" : \"beach\" } }, {\"name\":1,\"accommodates\":1,\"_id\":0}).sort(\"accommodates\", -1).limit(10)";
-//        System.out.println(StringUtils.deleteWhitespace(qry4));
-//        cacheResult = mongoClientWithCache.excuteQuery(qry5);
-        String qry6 = "collection.aggregate([ \n" +
-                "\t\t{\n" +
-                "\t\t\t\t\"$match\" : {\n" +
-                "\t\t\t\t\t\t\t\t\"$and\" : [\n" +
-                "\t\t\t\t\t\t\t\t{\"name\": {\"$regex\":\"Beach\"} }, \n" +
-                "\t\t\t\t\t\t\t\t{\"accommodates\": {\"$gt\": 6 }}\n" +
-                "\t\t\t\t\t\t\t\t]\n" +
-                "\t\t\t\t}\n" +
-                "\t\t},\n" +
-                "\n" +
-                "\t\t{\n" +
-                "\t\t\t\t\"$group\" : {\n" +
-                "\t\t\t\t\t\t\t\t\"_id\": {\n" +
-                "\t\t\t\t\t\t\t\t\t\t \"property_type\": \"$property_type\"\n" +
-                "\t\t\t\t\t\t\t\t},\n" +
-                "\t\t\t\t\t\t\t\t\"count\":  {\"$sum\":1} \n" +
-                "\t\t\t\t}\n" +
-                "\t\t},\n" +
-                "\t\t{\n" +
-                "\t\t\t\t\"$sort\" : { \n" +
-                "\t\t\t\t\t\t \"count\" : -1\n" +
-                "\t\t\t\t}\n" +
-                "\t\t}\n" +
-                "\t\t \n" +
-                "])";
-        System.out.println(StringUtils.deleteWhitespace(qry6));
-        cacheResult = mongoClientWithCache.excuteQuery(qry6);
+        String fileName = StringUtils.EMPTY;
+        String urlName = StringUtils.EMPTY;
+        for(int i=0; i< args.length; i++){
+            if(args[i].equals("-url")){
+                i++;
+                urlName = args[i];
+            }
+            if(args[i].equals("-f")){
+                i++;
+                fileName = args[i];
+            }
+        }
+        List<String> queryList = null;
+        try {
+            queryList = FileHandler.readQueryFromFile(fileName);
+        } catch (IOException e) {
+            logger.error("Failed to read the file {}",e.getCause());
+            exit(0);
+        }
 
+        if(queryList != null){
+            MongoClientWithCache mongoClientWithCache = new MongoClientWithCache(urlName);
+            int count = 1;
+            for(String queryStr: queryList){
+                try{
+
+                    logger.info("Executing query{}: {}",count++,StringUtils.deleteWhitespace(queryStr));
+                    CacheResult cacheResult = mongoClientWithCache.excuteQuery(queryStr);
+//                if(cacheResult.isSingleResult()){
+//                    logger.info(cacheResult.getValue());
+//                }else{
+//                    cacheResult.getHomeProperties().forEach(item -> logger.info(JsonUtil.toJsonString(item)));
+//                }
+                }catch (Exception e){
+                    logger.error("Exception {} occure executing {}",e.getCause(),queryStr);
+                }
+            }
+        }
+
+        logger.info("Program executed successfully!!");
+        return;
     }
 }

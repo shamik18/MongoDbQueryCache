@@ -1,10 +1,13 @@
 package com.mycomp.cache;
 
 import com.mycomp.models.HomeProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 public class CacheResult {
+    private static final Logger logger = LogManager.getLogger(CacheResult.class);
     private List homeProperties;
     private Object value;
     private boolean singleResult;

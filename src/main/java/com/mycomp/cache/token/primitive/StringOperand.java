@@ -4,12 +4,15 @@ import com.mycomp.cache.enums.OperatorEnum;
 import com.mycomp.cache.token.Operands;
 import com.mycomp.cache.token.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
 import static com.mycomp.cache.constant.KeywordLookup.OP_HKEY;
 
 public class StringOperand extends Operands {
+    private static final Logger logger = LogManager.getLogger(LongOperand.class);
 
     String value;
 

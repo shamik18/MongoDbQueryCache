@@ -4,43 +4,18 @@ import com.mycomp.cache.clause.Query;
 import com.mycomp.cache.clause.RecLimit;
 import com.mycomp.h2.JPAHandler;
 import com.mycomp.models.HomeProperty;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class QueryCache {
+    private static final Logger logger = LogManager.getLogger(QueryCache.class);
 
     private JPAHandler jpaHandler = new JPAHandler();
-    private class PriorityQueueSet extends HashSet<Query>{
-        private PriorityQueue<Query> queue = new PriorityQueue<>((u,v) -> u.getUpdateTS().compareTo(v.getUpdateTS()));
-        private static final  int CACHE_SIZE = 4;
-        @Override
-        public boolean add(Query query) {
-            boolean find = super.add(query);
-            cacheReplacement(query);
-            return find;
-        }
-        private void cacheReplacement(Query query){
-            if(queue.size() == CACHE_SIZE){
-                queue.remove();
-            }
-            queue.offer(query);
-        }
-        public Query get(Query query){
-            for ( Iterator<Query> it = this.iterator(); it.hasNext();){
-                Query item = it.next();
-                if(item.isEquivalent(query)){
-                    return query;
-                }
-            }
-            return null;
-        }
-
-        public boolean isExist(Query query){
-            Query q = get(query);
-            return q != null;
-        }
-    }
-
     private PriorityQueueSet lruCache = new PriorityQueueSet();
 
     public boolean isFound(Query query){
@@ -51,9 +26,11 @@ public class QueryCache {
         String hsqlQuery = query.toString();
         RecLimit recLimit = query.getRecLimit();
         boolean isAggrigate = query.getSelectClause().isAggregate();
+        logger.info("fetching from the cache with query id {}",query.getQueryID());
         CacheResult result = jpaHandler.getDataFromCache(hsqlQuery,recLimit,isAggrigate);
         Query q = lruCache.get(query);
-        q.setUpdateTS(new Date());
+        q.setUpdateTS(LocalDateTime.now() );
+        logger.info("updating time stamp for query id {} with {}",q.getQueryID(),q.getUpdateTS());
         return result;
     }
 
@@ -63,7 +40,4 @@ public class QueryCache {
         }
         lruCache.add(query);
     }
-
-
-
 }

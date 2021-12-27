@@ -1,8 +1,11 @@
 package com.mycomp.h2;
 
+import com.mycomp.app.AppCmd;
 import com.mycomp.cache.CacheResult;
 import com.mycomp.cache.clause.RecLimit;
 import com.mycomp.models.HomeProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -10,6 +13,8 @@ import javax.persistence.Query;
 import java.util.List;
 
 public class JPAHandler {
+    private static final Logger logger = LogManager.getLogger(JPAHandler.class);
+
     public void updateCache(HomeProperty homeProperty){
         Transaction transaction = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
@@ -32,7 +37,7 @@ public class JPAHandler {
 //        List<HomeProperty> list = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
             transaction = session.beginTransaction();
-            System.out.println("Execute Hsql:"+hsqlQuery);
+            logger.info("Execute Hsql:"+hsqlQuery);
             Query query = session.createQuery(hsqlQuery);
             if(isAggrigate){
                 Object object = query.getSingleResult();
@@ -45,7 +50,7 @@ public class JPAHandler {
                 }
                 List list = query.getResultList();
                 cacheResult.setHomeProperties(list);
-                System.out.println(list.size());
+                logger.info("No of records returned from cache:"+list.size());
             }
             transaction.commit();
         }catch (Exception exception) {

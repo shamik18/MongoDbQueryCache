@@ -1,14 +1,19 @@
 package com.mycomp.cache.token.primitive;
 
 import com.mycomp.cache.enums.OperatorEnum;
+import com.mycomp.cache.token.Attribute;
 import com.mycomp.cache.token.Operands;
 import com.mycomp.cache.token.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.mycomp.cache.constant.KeywordLookup.OP_HKEY;
 
 public class BooleanOperand extends Operands {
-   private Boolean value;
+    private static final Logger logger = LogManager.getLogger(BooleanOperand.class);
+
+    private Boolean value;
 
     public Boolean getValue() {
         return value;
